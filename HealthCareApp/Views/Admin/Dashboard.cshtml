@@ -1,0 +1,57 @@
+﻿@* @{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Administrative Dashboard</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white text-center p-3">
+                <h3>@ViewBag.PatientCount</h3>
+                <p>Total Patients</p>
+                <a asp-action="ManagePatients" class="text-white">Manage <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white text-center p-3">
+                <h3>@ViewBag.DoctorCount</h3>
+                <p>Total Doctors</p>
+                <a asp-action="ManageDoctors" class="text-white">Manage <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white text-center p-3">
+                <h3>@ViewBag.AppointmentCount</h3>
+                <p>Total Appointments</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Recent Appointments</div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var app in ViewBag.RecentAppointments)
+                    {
+                        <tr>
+                            <td>@app.Patient.FullName</td>
+                            <td>@app.Doctor.FullName</td>
+                            <td>@app.Appointment_Date.ToShortDateString()</td>
+                            <td>@app.Status</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div> *@

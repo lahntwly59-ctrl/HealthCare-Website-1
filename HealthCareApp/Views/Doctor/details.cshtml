@@ -1,0 +1,40 @@
+﻿@model HealthCareApp.Models.Entities.Doctor
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ViewData["Title"] = "Doctor Details";
+}
+
+<div style="max-width:520px; margin:0 auto;">
+    <div class="card">
+        <div style="text-align:center; margin-bottom:24px; padding-bottom:20px; border-bottom:1px solid var(--border);">
+            <div class="doctor-avatar" style="margin:0 auto 14px; width:72px; height:72px; font-size:1.6rem;">
+                @Model.FirstName[0]@Model.LastName[0]
+            </div>
+            <div style="font-size:1.2rem; font-weight:800;">Dr. @Model.FirstName @Model.LastName</div>
+            <div style="color:var(--muted); font-size:.85rem; margin:4px 0;">@Model.Field</div>
+            <span class="doctor-dept">@Model.Department?.Department_Name</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
+                <span style="font-size:.8rem; color:var(--muted); font-weight:600;">PHONE</span>
+                <span style="font-weight:600;">@Model.Phone</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
+                <span style="font-size:.8rem; color:var(--muted); font-weight:600;">EMAIL</span>
+                <span style="font-weight:600;">@Model.Email</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0;">
+                <span style="font-size:.8rem; color:var(--muted); font-weight:600;">DEPARTMENT</span>
+                <span style="font-weight:600;">@Model.Department?.Department_Name — @Model.Department?.Location</span>
+            </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+            <a asp-action="Create" asp-controller="Appointment" class="btn btn-accent">
+                <i class="fas fa-calendar-plus"></i> Book Appointment
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Doctor_ID" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit
+            </a>
+            <a asp-action="Index" class="btn btn-outline">Back</a>
+        </div>
+    </div>
+</div>

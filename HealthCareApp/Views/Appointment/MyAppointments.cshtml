@@ -1,0 +1,124 @@
+﻿@model IEnumerable<HealthCareApp.Models.Entities.Appointment>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ViewData["Title"] = "My Appointments";
+    string s = ViewBag.Status as string ?? "";
+    string Active(string v) => s == v ? "btn btn-primary btn-sm" : "btn btn-outline btn-sm";
+}
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+    <div style="display:flex; gap:8px;">
+        <a href="/Appointment/MyAppointments" class="@Active("")">All</a>
+        <a href="/Appointment/MyAppointments?status=Scheduled" class="@Active("Scheduled")">Scheduled</a>
+        <a href="/Appointment/MyAppointments?status=Completed" class="@Active("Completed")">Completed</a>
+        <a href="/Appointment/MyAppointments?status=Canceled" class="@Active("Canceled")">Canceled</a>
+    </div>
+    <a asp-action="Create" asp-controller="Appointment" class="btn btn-accent">
+        <i class="fas fa-plus"></i> Book Appointment
+    </a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card" style="text-align:center; padding:48px;">
+        <i class="fas fa-calendar-times" style="font-size:2.5rem; color:var(--border); margin-bottom:12px;"></i>
+        <div style="font-weight:700; margin-bottom:6px;">No appointments found</div>
+        <div style="color:var(--muted); font-size:.85rem; margin-bottom:18px;">Book your first appointment with a specialist.</div>
+        <a asp-action="Create" asp-controller="Appointment" class="btn btn-accent">
+            <i class="fas fa-plus"></i> Book Now
+        </a>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Date & Time</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model)
+                    {
+                        <tr>
+                            <td style="color:var(--muted); font-size:.8rem;">@a.Appointment_ID</td>
+                            <td>
+                                <div style="font-weight:600;">Dr. @a.Doctor?.FirstName @a.Doctor?.LastName</div>
+                                <div style="font-size:.75rem; color:var(--muted);">@a.Doctor?.Field</div>
+                            </td>
+                            <td style="font-size:.82rem;">@a.Doctor?.Department?.Department_Name</td>
+                            <td>
+                                <div style="font-weight:600;">@a.Appointment_Date.ToString("MMM dd, yyyy")</div>
+                                <div style="font-size:.75rem; color:var(--muted);">@a.Appointment_Date.ToString("hh:mm tt")</div>
+                            </td>
+                            <td style="font-size:.82rem; max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                @(a.Description ?? "—")
+                            </td>
+                            <td>
+                                <span class="status status-@a.Status.ToLower()">@a.Status</span>
+                            </td>
+                            <td>
+                                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+
+                                    @* View details *@
+                                    <a asp-action="Details" asp-route-id="@a.Appointment_ID"
+                                       class="btn btn-outline btn-sm" title="Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+
+                                    @* Scheduled: can Edit, Mark Complete, or Cancel *@
+                                    @if (a.Status == "Scheduled")
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@a.Appointment_ID"
+                                           class="btn btn-primary btn-sm" title="Edit">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+
+                                        @* Mark as Completed *@
+                                        <form method="post" asp-action="ChangeStatus" asp-controller="Appointment" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Appointment_ID" />
+                                            <input type="hidden" name="newStatus" value="Completed" />
+                                            <button type="submit" class="btn btn-sm"
+                                                    style="background:#16a34a; color:white;"
+                                                    title="Mark as Completed"
+                                                    onclick="return confirm('Mark this appointment as Completed?')">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                        </form>
+
+                                        @* Cancel *@
+                                        <form method="post" asp-action="ChangeStatus" asp-controller="Appointment" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@a.Appointment_ID" />
+                                            <input type="hidden" name="newStatus" value="Canceled" />
+                                            <button type="submit" class="btn btn-warning btn-sm"
+                                                    title="Cancel"
+                                                    onclick="return confirm('Cancel this appointment?')">
+                                                <i class="fas fa-ban"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    @* Delete — available for any status *@
+                                    <a asp-action="Delete" asp-route-id="@a.Appointment_ID"
+                                       class="btn btn-sm" style="background:#dc3545; color:white;" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

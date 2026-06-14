@@ -1,0 +1,85 @@
+﻿@model HealthCareApp.Models.Entities.Doctor
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ViewData["Title"] = "Edit Doctor";
+}
+<div style="max-width:600px; margin:0 auto;">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-user-edit"></i> Edit Doctor</div>
+        <form method="post" asp-action="Edit" asp-controller="Doctor">
+            @Html.AntiForgeryToken()
+
+            @* KEY FIX: sends Doctor_ID back so EF updates instead of inserting  *@
+            <input type="hidden" name="Doctor_ID" value="@Model.Doctor_ID" />
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input name="FirstName" class="form-control" value="@Model.FirstName" required />
+                    <span class="field-error">@Html.ValidationMessage("FirstName")</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input name="LastName" class="form-control" value="@Model.LastName" required />
+                    <span class="field-error">@Html.ValidationMessage("LastName")</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Specialization Field</label>
+                    <select name="Field" class="form-control form-select" required>
+                        <option value="">— Select Specialization —</option>
+                        @foreach (var spec in new[] { "Cardiology","Neurology","Orthopedics","Pediatrics",
+                                                                                                              "Dermatology","General Surgery","Emergency Medicine",
+                                                                                                              "Ophthalmology","Gynecology","Psychiatry",
+                                                                                                              "Radiology","Oncology","Urology","ENT","General Medicine" })
+                        {
+                            if (Model.Field == spec)
+                            {
+                                <option value="@spec" selected>@spec</option>
+                            }
+                            else
+                            {
+                                <option value="@spec">@spec</option>
+                            }
+                        }
+                    </select>
+                    <span class="field-error">@Html.ValidationMessage("Field")</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <select name="Department_ID" class="form-control form-select" required>
+                        <option value="">— Select —</option>
+                        @foreach (var dept in (List<HealthCareApp.Models.Entities.Department>)ViewBag.Departments)
+                        {
+                            if (Model.Department_ID == dept.Department_ID)
+                            {
+                                <option value="@dept.Department_ID" selected>@dept.Department_Name</option>
+                            }
+                            else
+                            {
+                                <option value="@dept.Department_ID">@dept.Department_Name</option>
+                            }
+                        }
+                    </select>
+                    <span class="field-error">@Html.ValidationMessage("Department_ID")</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Phone</label>
+                    <input name="Phone" class="form-control" value="@Model.Phone" required />
+                    <span class="field-error">@Html.ValidationMessage("Phone")</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input name="Email" type="email" class="form-control" value="@Model.Email" required />
+                    <span class="field-error">@Html.ValidationMessage("Email")</span>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                <a asp-action="Index" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

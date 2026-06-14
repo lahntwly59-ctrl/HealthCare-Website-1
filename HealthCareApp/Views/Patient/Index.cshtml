@@ -1,0 +1,111 @@
+﻿@model HealthCareApp.Models.Entities.Patient
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon teal"><i class="fas fa-calendar-check"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.AppointmentsCount</div>
+            <div class="stat-lbl">Total Appointments</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-clock"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.UpcomingCount</div>
+            <div class="stat-lbl">Upcoming</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-user-check"></i></div>
+        <div>
+            <div class="stat-val">Active</div>
+            <div class="stat-lbl">Account Status</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fas fa-venus-mars"></i></div>
+        <div>
+            <div class="stat-val">@(Model.Gender == "M" ? "Male" : "Female")</div>
+            <div class="stat-lbl">Gender</div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-user"></i> Profile Summary</div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border);">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(0,196,180,.1); display:flex; align-items:center; justify-content:center; color:var(--accent);">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div>
+                    <div style="font-size:.72rem; color:var(--muted); font-weight:600;">Email</div>
+                    <div style="font-size:.88rem; font-weight:600;">@Model.Email</div>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border);">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(0,196,180,.1); display:flex; align-items:center; justify-content:center; color:var(--accent);">
+                    <i class="fas fa-phone"></i>
+                </div>
+                <div>
+                    <div style="font-size:.72rem; color:var(--muted); font-weight:600;">Phone</div>
+                    <div style="font-size:.88rem; font-weight:600;">@Model.Phone</div>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border);">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(0,196,180,.1); display:flex; align-items:center; justify-content:center; color:var(--accent);">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div>
+                    <div style="font-size:.72rem; color:var(--muted); font-weight:600;">Address</div>
+                    <div style="font-size:.88rem; font-weight:600;">@(Model.Address ?? "—")</div>
+                </div>
+            </div>
+
+            <div style="display:flex; align-items:center; gap:12px; padding:10px 0;">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(0,196,180,.1); display:flex; align-items:center; justify-content:center; color:var(--accent);">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                <div>
+                    <div style="font-size:.72rem; color:var(--muted); font-weight:600;">Date of Birth</div>
+                    <div style="font-size:.88rem; font-weight:600;">@(Model.Date_Of_Birth?.ToString("MMM dd, yyyy") ?? "—")</div>
+                </div>
+            </div>
+
+        </div>
+        <div style="margin-top:16px; display:flex; gap:10px;">
+            <a asp-action="Edit" asp-controller="Patient" class="btn btn-primary btn-sm">
+                <i class="fas fa-edit"></i> Edit Profile
+            </a>
+            <a asp-action="ChangePassword" asp-controller="Account" class="btn btn-outline btn-sm">
+                <i class="fas fa-lock"></i> Change Password
+            </a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <a asp-action="Create" asp-controller="Appointment" class="btn btn-accent" style="justify-content:center;">
+                <i class="fas fa-plus-circle"></i> Book New Appointment
+            </a>
+            <a asp-action="MyAppointments" asp-controller="Appointment" class="btn btn-outline" style="justify-content:center;">
+                <i class="fas fa-calendar-alt"></i> View My Appointments
+            </a>
+            <a asp-action="Index" asp-controller="Doctor" class="btn btn-outline" style="justify-content:center;">
+                <i class="fas fa-user-md"></i> Browse Doctors
+            </a>
+            <a asp-action="Profile" asp-controller="Patient" class="btn btn-outline" style="justify-content:center;">
+                <i class="fas fa-id-card"></i> Full Profile
+            </a>
+        </div>
+    </div>
+</div>

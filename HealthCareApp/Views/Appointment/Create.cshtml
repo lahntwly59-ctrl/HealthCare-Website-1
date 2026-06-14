@@ -1,0 +1,114 @@
+﻿@model HealthCareApp.Models.Entities.Appointment
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ViewData["Title"] = "Book Appointment";
+}
+
+<div style="max-width:520px; margin:0 auto;">
+    <div class="card">
+        <div class="card-header">
+            <i class="bi bi-calendar2-plus me-2"></i>Book an Appointment
+        </div>
+        <div class="card-body p-4">
+
+            <form method="post" asp-action="Create" asp-controller="Appointment">
+                @Html.AntiForgeryToken()
+
+                @* Department filter *@
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Department</label>
+                    <select name="selectedDept" class="form-select"
+                            onchange="this.form.method='get'; this.form.action='/Appointment/Create'; this.form.submit();">
+                        <option value="">-- All Departments --</option>
+                        @foreach (var dept in (List<HealthCareApp.Models.Entities.Department>)ViewBag.Departments)
+                        {
+                            if (ViewBag.SelectedDept != null && ViewBag.SelectedDept == dept.Department_ID)
+                            {
+                                <option value="@dept.Department_ID" selected>@dept.Department_Name</option>
+                            }
+                            else
+                            {
+                                <option value="@dept.Department_ID">@dept.Department_Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                @* Doctor *@
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Select Doctor</label>
+                    <select name="Doctor_ID" class="form-select" required>
+                        <option value="">-- Choose a Doctor --</option>
+                        @foreach (var doc in (List<HealthCareApp.Models.Entities.Doctor>)ViewBag.Doctors)
+                        {
+                            <option value="@doc.Doctor_ID">
+                                Dr. @doc.FirstName @doc.LastName — @doc.Field (@doc.Department?.Department_Name)
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                @* Date — today or future, no max limit *@
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Appointment Date</label>
+                    <input name="AppointmentDateOnly"
+                           type="date"
+                           class="form-control"
+                           min="@ViewBag.TodayMin"
+                           required />
+                    <div class="small mt-1" style="color:#64748b;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Select today or any future date.
+                    </div>
+                </div>
+
+                @* Fixed time slots *@
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Time Slot</label>
+                    <select name="AppointmentTimeSlot" class="form-select" required>
+                        <option value="">-- Choose a Time --</option>
+                        <optgroup label="Morning">
+                            <option value="08:00">8:00 AM</option>
+                            <option value="09:00">9:00 AM</option>
+                            <option value="10:00">10:00 AM</option>
+                            <option value="11:00">11:00 AM</option>
+                        </optgroup>
+                        <optgroup label="Afternoon">
+                            <option value="13:00">1:00 PM</option>
+                            <option value="14:00">2:00 PM</option>
+                            <option value="15:00">3:00 PM</option>
+                            <option value="16:00">4:00 PM</option>
+                        </optgroup>
+                        <optgroup label="Evening">
+                            <option value="17:00">5:00 PM</option>
+                            <option value="18:00">6:00 PM</option>
+                            <option value="19:00">7:00 PM</option>
+                            <option value="20:00">8:00 PM</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                @* Description *@
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">
+                        Description <span class="text-muted fw-normal">(optional)</span>
+                    </label>
+                    <textarea name="Description"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Describe your symptoms or reason for visit..."></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill">
+                        <i class="bi bi-check-circle me-1"></i> Confirm Booking
+                    </button>
+                    <a asp-action="MyAppointments" asp-controller="Appointment"
+                       class="btn btn-outline-secondary flex-fill text-center">
+                        Cancel
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>

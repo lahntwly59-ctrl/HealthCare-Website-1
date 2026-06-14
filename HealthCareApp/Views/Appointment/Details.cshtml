@@ -1,0 +1,86 @@
+﻿@model HealthCareApp.Models.Entities.Appointment
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Appointment Details";
+}
+
+<div style="max-width:560px; margin:0 auto;">
+    <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid var(--border);">
+            <div class="card-title" style="margin-bottom:0;"><i class="fas fa-calendar-check"></i> Appointment #@Model.Appointment_ID</div>
+            <span class="status status-@Model.Status.ToLower()">@Model.Status</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:24px;">
+
+            <div style="padding:14px; background:var(--bg); border-radius:8px;">
+                <div style="font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; margin-bottom:4px;">
+                    <i class="fas fa-user" style="margin-right:4px;"></i>Patient
+                </div>
+                <div style="font-weight:600; font-size:.9rem;">@(Model.Patient?.FullName ?? "—")</div>
+            </div>
+
+            <div style="padding:14px; background:var(--bg); border-radius:8px;">
+                <div style="font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; margin-bottom:4px;">
+                    <i class="fas fa-user-md" style="margin-right:4px;"></i>Doctor
+                </div>
+                <div style="font-weight:600; font-size:.9rem;">Dr. @Model.Doctor?.FirstName @Model.Doctor?.LastName</div>
+            </div>
+
+            <div style="padding:14px; background:var(--bg); border-radius:8px;">
+                <div style="font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; margin-bottom:4px;">
+                    <i class="fas fa-stethoscope" style="margin-right:4px;"></i>Field
+                </div>
+                <div style="font-weight:600; font-size:.9rem;">@(Model.Doctor?.Field ?? "—")</div>
+            </div>
+
+            <div style="padding:14px; background:var(--bg); border-radius:8px;">
+                <div style="font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; margin-bottom:4px;">
+                    <i class="fas fa-hospital" style="margin-right:4px;"></i>Department
+                </div>
+                <div style="font-weight:600; font-size:.9rem;">@(Model.Doctor?.Department?.Department_Name ?? "—")</div>
+            </div>
+
+            <div style="padding:14px; background:var(--bg); border-radius:8px;">
+                <div style="font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; margin-bottom:4px;">
+                    <i class="fas fa-calendar" style="margin-right:4px;"></i>Date
+                </div>
+                <div style="font-weight:600; font-size:.9rem;">@Model.Appointment_Date.ToString("MMMM dd, yyyy")</div>
+            </div>
+
+            <div style="padding:14px; background:var(--bg); border-radius:8px;">
+                <div style="font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; margin-bottom:4px;">
+                    <i class="fas fa-clock" style="margin-right:4px;"></i>Time
+                </div>
+                <div style="font-weight:600; font-size:.9rem;">@Model.Appointment_Date.ToString("hh:mm tt")</div>
+            </div>
+
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <div style="padding:14px; background:var(--bg); border-radius:8px; margin-bottom:20px;">
+                <div style="font-size:.7rem; color:var(--muted); font-weight:700; text-transform:uppercase; margin-bottom:6px;">
+                    <i class="fas fa-notes-medical" style="margin-right:4px;"></i>Description
+                </div>
+                <div style="font-size:.88rem; line-height:1.5;">@Model.Description</div>
+            </div>
+        }
+
+        <div style="display:flex; gap:10px;">
+            @if (Model.Status == "Scheduled")
+            {
+                <a asp-action="Edit" asp-route-id="@Model.Appointment_ID" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <form method="post" asp-action="Cancel" asp-route-id="@Model.Appointment_ID">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-warning" onclick="return confirm('Cancel this appointment?')">
+                        <i class="fas fa-ban"></i> Cancel Appointment
+                    </button>
+                </form>
+            }
+            <a asp-action="MyAppointments" class="btn btn-outline"><i class="fas fa-arrow-left"></i> Back</a>
+        </div>
+    </div>
+</div>

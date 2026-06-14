@@ -1,0 +1,116 @@
+﻿@* @model IEnumerable<HealthCareApp.Models.Entities.Doctor>
+@{
+    ViewData["Title"] = "Our Doctors";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4 text-primary"><i class="fas fa-user-md"></i> Find a Specialist</h2>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <form asp-action="Index" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <input type="text" name="searchString" class="form-control" placeholder="Search by name...">
+                </div>
+                <div class="col-md-4">
+                    <select name="field" class="form-select">
+                        <option value="">All Specializations</option>
+                        @foreach (var field in ViewBag.Fields)
+                        {
+                            <option value="@field">@field</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row">
+        @foreach (var item in Model)
+        {
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <i class="fas fa-user-circle fa-4x text-secondary"></i>
+                        </div>
+                        <h5 class="card-title">@item.FullName</h5>
+                        <p class="text-primary fw-bold">@item.Field</p>
+                        <p class="text-muted"><i class="fas fa-map-marker-alt"></i> @item.Department.Department_Name (@item.Department.Location)</p>
+                        <a asp-controller="Appointment" asp-action="Book" asp-route-id="@item.Doctor_ID" class="btn btn-outline-primary">Book Appointment</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div> *@
+@model IEnumerable<HealthCareApp.Models.Entities.Doctor>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ViewData["Title"] = "Doctors";
+}
+
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:gap;">
+    <div style="display:flex; gap:10px; flex:1; max-width:600px; flex-wrap:wrap;">
+        <form method="get" asp-action="Index" style="display:flex; gap:8px; flex:1;">
+            <div class="search-bar" style="flex:1;">
+                <i class="fas fa-search"></i>
+                <input name="search" class="form-control" placeholder="Search by name or field…" value="@ViewBag.Search" />
+            </div>
+            <select name="departmentId" class="form-control form-select" style="width:180px;">
+                <option value="">All Departments</option>
+                @foreach (var dept in (List<HealthCareApp.Models.Entities.Department>)ViewBag.Departments)
+                {
+                    <option value="@dept.Department_ID" selected="@(ViewBag.DepartmentId?.ToString() == dept.Department_ID.ToString())">
+                        @dept.Department_Name
+                    </option>
+                }
+            </select>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+            @if (!string.IsNullOrEmpty(ViewBag.Search as string) || ViewBag.DepartmentId != null)
+            {
+                <a asp-action="Index" class="btn btn-outline"><i class="fas fa-times"></i></a>
+            }
+        </form>
+    </div>
+    <a asp-action="Create" class="btn btn-accent" style="margin-left:12px;"><i class="fas fa-plus"></i> Add Doctor</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="card" style="text-align:center; padding:48px;">
+        <i class="fas fa-user-md" style="font-size:2.5rem; color:var(--border); margin-bottom:12px;"></i>
+        <div style="font-weight:700; margin-bottom:6px;">No doctors found</div>
+        <div style="color:var(--muted); font-size:.85rem;">Try adjusting your search or filter.</div>
+    </div>
+}
+else
+{
+    <div class="doctor-grid">
+        @foreach (var doc in Model)
+        {
+            <div class="doctor-card">
+                <div class="doctor-avatar">@doc.FirstName[0]@doc.LastName[0]</div>
+                <div class="doctor-name">Dr. @doc.FirstName @doc.LastName</div>
+                <div class="doctor-field">@doc.Field</div>
+                <div class="doctor-dept">@doc.Department?.Department_Name</div>
+                <div style="margin-top:14px; font-size:.78rem; color:var(--muted);">
+                    <i class="fas fa-phone" style="margin-right:4px;"></i>@doc.Phone
+                </div>
+                <div style="display:flex; gap:6px; margin-top:14px; justify-content:center;">
+                    <a asp-action="Details" asp-route-id="@doc.Doctor_ID" class="btn btn-outline btn-sm">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@doc.Doctor_ID" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@doc.Doctor_ID" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+}

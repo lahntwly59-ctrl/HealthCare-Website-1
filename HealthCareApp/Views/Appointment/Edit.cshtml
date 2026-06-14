@@ -1,0 +1,112 @@
+﻿@model HealthCareApp.Models.Entities.Appointment
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml"; ViewData["Title"] = "Edit Appointment";
+}
+
+<div style="max-width:580px; margin:0 auto;">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-calendar-edit"></i> Edit Appointment</div>
+        <form method="post"
+              asp-action="Edit"
+              asp-route-id="@Model.Appointment_ID"
+              asp-controller="Appointment">
+            @Html.AntiForgeryToken()
+
+            @* Doctor *@
+            <div class="form-group">
+                <label class="form-label">Select Doctor</label>
+                <select name="Doctor_ID" class="form-control form-select" required>
+                    <option value="">-- Choose a Doctor --</option>
+                    @foreach (var doc in (List<HealthCareApp.Models.Entities.Doctor>)ViewBag.Doctors)
+                    {
+                        if (Model.Doctor_ID == doc.Doctor_ID)
+                        {
+                            <option value="@doc.Doctor_ID" selected>
+                                Dr. @doc.FirstName @doc.LastName — @doc.Field (@doc.Department?.Department_Name)
+                            </option>
+                        }
+                        else
+                        {
+                            <option value="@doc.Doctor_ID">
+                                Dr. @doc.FirstName @doc.LastName — @doc.Field (@doc.Department?.Department_Name)
+                            </option>
+                        }
+                    }
+                </select>
+            </div>
+
+            @* Date — today or future *@
+            <div class="form-group">
+                <label class="form-label">Appointment Date</label>
+                <input name="AppointmentDateOnly"
+                       type="date"
+                       class="form-control"
+                       min="@ViewBag.TodayMin"
+                       value="@ViewBag.CurrentDate"
+                       required />
+            </div>
+
+            @* Fixed time slots — pre-selects current time *@
+            <div class="form-group">
+                <label class="form-label">Time Slot</label>
+                <select name="AppointmentTimeSlot" class="form-control form-select" required>
+                    <option value="">-- Choose a Time --</option>
+                    <optgroup label="Morning">
+                        @foreach (var slot in new[] { "08:00", "09:00", "10:00", "11:00" })
+                        {
+                            if (ViewBag.CurrentTime == slot)
+                            {
+                                <option value="@slot" selected>@DateTime.Parse(slot).ToString("h:00 tt")</option>
+                            }
+                            else
+                            {
+                                <option value="@slot">@DateTime.Parse(slot).ToString("h:00 tt")</option>
+                            }
+                        }
+                    </optgroup>
+                    <optgroup label="Afternoon">
+                        @foreach (var slot in new[] { "13:00", "14:00", "15:00", "16:00" })
+                        {
+                            if (ViewBag.CurrentTime == slot)
+                            {
+                                <option value="@slot" selected>@DateTime.Parse(slot).ToString("h:00 tt")</option>
+                            }
+                            else
+                            {
+                                <option value="@slot">@DateTime.Parse(slot).ToString("h:00 tt")</option>
+                            }
+                        }
+                    </optgroup>
+                    <optgroup label="Evening">
+                        @foreach (var slot in new[] { "17:00", "18:00", "19:00", "20:00" })
+                        {
+                            if (ViewBag.CurrentTime == slot)
+                            {
+                                <option value="@slot" selected>@DateTime.Parse(slot).ToString("h:00 tt")</option>
+                            }
+                            else
+                            {
+                                <option value="@slot">@DateTime.Parse(slot).ToString("h:00 tt")</option>
+                            }
+                        }
+                    </optgroup>
+                </select>
+            </div>
+
+            @* Description *@
+            <div class="form-group">
+                <label class="form-label">Description <span style="color:var(--muted); font-size:.8rem;">(optional)</span></label>
+                <textarea name="Description" class="form-control" rows="3" style="resize:vertical;">@Model.Description</textarea>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a asp-action="MyAppointments" asp-controller="Appointment" class="btn btn-outline">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
