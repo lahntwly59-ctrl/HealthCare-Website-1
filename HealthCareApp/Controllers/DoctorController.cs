@@ -14,15 +14,23 @@ namespace HealthCareApp.Controllers
             _context = context;
         }
 
-        // GET: /Doctor/Index
+        private bool IsAdmin => HttpContext.Session.GetString("IsAdmin") == "true";
+        private bool IsLoggedIn => HttpContext.Session.GetInt32("PatientId") != null;
+
+        private IActionResult DenyAccess()
+        {
+            TempData["Error"] = "Access denied. Admins only.";
+            return RedirectToAction("Index");
+        }
+
+        // GET: /Doctor/Index  — EVERYONE can view
         [HttpGet]
         public IActionResult Index(string? search, int? departmentId)
         {
-            var doctors = _context.Doctors
-                .Include(d => d.Department)
-                .ToList();
+            if (!IsLoggedIn) return RedirectToAction("Login", "Account");
 
-            // Filter by name or field
+            var doctors = _context.Doctors.Include(d => d.Department).ToList();
+
             if (!string.IsNullOrEmpty(search))
                 doctors = doctors.Where(d =>
                     d.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase) ||
@@ -30,11 +38,9 @@ namespace HealthCareApp.Controllers
                     d.Field.Contains(search, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
-            // Filter by department
             if (departmentId.HasValue && departmentId > 0)
                 doctors = doctors.Where(d => d.Department_ID == departmentId).ToList();
 
-            // Pass back to view so inputs keep their values
             ViewBag.Search       = search;
             ViewBag.DepartmentId = departmentId;
             ViewBag.Departments  = _context.Departments.ToList();
@@ -42,10 +48,11 @@ namespace HealthCareApp.Controllers
             return View(doctors);
         }
 
-        // GET: /Doctor/Details/5
+        // GET: /Doctor/Details/5  — EVERYONE can view
         [HttpGet]
         public IActionResult Details(int? id)
         {
+            if (!IsLoggedIn) return RedirectToAction("Login", "Account");
             if (id == null) { TempData["Error"] = "No doctor selected."; return RedirectToAction("Index"); }
 
             var doctor = _context.Doctors
@@ -57,19 +64,22 @@ namespace HealthCareApp.Controllers
             return View(doctor);
         }
 
-        // GET: /Doctor/Create
+        // GET: /Doctor/Create  — ADMIN ONLY
         [HttpGet]
         public IActionResult Create()
         {
+            if (!IsAdmin) return DenyAccess();
             ViewBag.Departments = _context.Departments.ToList();
             return View();
         }
 
-        // POST: /Doctor/Create
+        // POST: /Doctor/Create  — ADMIN ONLY
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Doctor doctor)
         {
+            if (!IsAdmin) return DenyAccess();
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Departments = _context.Departments.ToList();
@@ -78,30 +88,31 @@ namespace HealthCareApp.Controllers
 
             _context.Doctors.Add(doctor);
             _context.SaveChanges();
-
             TempData["Success"] = "Doctor added successfully.";
             return RedirectToAction("Index");
         }
 
-        // GET: /Doctor/Edit/5
+        // GET: /Doctor/Edit/5  — ADMIN ONLY
         [HttpGet]
         public IActionResult Edit(int? id)
         {
+            if (!IsAdmin) return DenyAccess();
             if (id == null) { TempData["Error"] = "No doctor selected."; return RedirectToAction("Index"); }
 
             var doctor = _context.Doctors.FirstOrDefault(d => d.Doctor_ID == id);
-
             if (doctor == null) { TempData["Error"] = "Doctor not found."; return RedirectToAction("Index"); }
 
             ViewBag.Departments = _context.Departments.ToList();
             return View(doctor);
         }
 
-        // POST: /Doctor/Edit
+        // POST: /Doctor/Edit  — ADMIN ONLY
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(Doctor doctor)
         {
+            if (!IsAdmin) return DenyAccess();
+
             if (!ModelState.IsValid)
             {
                 ViewBag.Departments = _context.Departments.ToList();
@@ -109,7 +120,6 @@ namespace HealthCareApp.Controllers
             }
 
             var existing = _context.Doctors.FirstOrDefault(d => d.Doctor_ID == doctor.Doctor_ID);
-
             if (existing == null) { TempData["Error"] = "Doctor not found."; return RedirectToAction("Index"); }
 
             existing.FirstName     = doctor.FirstName;
@@ -124,10 +134,11 @@ namespace HealthCareApp.Controllers
             return RedirectToAction("Index");
         }
 
-        // GET: /Doctor/Delete/5
+        // GET: /Doctor/Delete/5  — ADMIN ONLY
         [HttpGet]
         public IActionResult Delete(int? id)
         {
+            if (!IsAdmin) return DenyAccess();
             if (id == null) { TempData["Error"] = "No doctor selected."; return RedirectToAction("Index"); }
 
             var doctor = _context.Doctors
@@ -139,18 +150,18 @@ namespace HealthCareApp.Controllers
             return View(doctor);
         }
 
-        // POST: /Doctor/Delete/5
+        // POST: /Doctor/Delete/5  — ADMIN ONLY
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var doctor = _context.Doctors.FirstOrDefault(d => d.Doctor_ID == id);
+            if (!IsAdmin) return DenyAccess();
 
+            var doctor = _context.Doctors.FirstOrDefault(d => d.Doctor_ID == id);
             if (doctor == null) { TempData["Error"] = "Doctor not found."; return RedirectToAction("Index"); }
 
             _context.Doctors.Remove(doctor);
             _context.SaveChanges();
-
             TempData["Success"] = "Doctor deleted successfully.";
             return RedirectToAction("Index");
         }

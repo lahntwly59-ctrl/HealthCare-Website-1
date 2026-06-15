@@ -1,57 +1,259 @@
-﻿@model HealthCareApp.Models.ViewModels.LoginViewModel
-@{
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Sign In";
+﻿@{
+    ViewData["Title"] = "Login";
+    Layout = null;
 }
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — HealthCare</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        :root {
+            --primary: #0A6E6E;
+            --accent: #00C4B4;
+            --danger: #E05252;
+            --text: #1A2533;
+            --muted: #6B7A8D;
+            --border: #DDE3EC;
+        }
 
-<div class="auth-page">
-    <div class="auth-left">
-        <h1>Your Health,<br />Our Priority</h1>
-        <p>Access your appointments, connect with doctors, and manage your healthcare — all in one place.</p>
-        <div class="auth-features">
-            <div class="auth-feature"><i class="fas fa-calendar-check"></i> Book &amp; track appointments</div>
-            <div class="auth-feature"><i class="fas fa-user-md"></i> Browse specialist doctors</div>
-            <div class="auth-feature"><i class="fas fa-shield-alt"></i> Secure &amp; private records</div>
-        </div>
-    </div>
-    <div class="auth-right">
-        <div class="auth-box">
-            <div class="auth-logo">
-                <i class="fas fa-heartbeat"></i>
-                <span>HealthCare</span>
-            </div>
-            <div class="auth-title">Welcome back</div>
-            <div class="auth-sub">Sign in to your patient account</div>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle"></i>
-                    @Html.ValidationSummary(true)
-                </div>
+        body {
+            font-family: 'Segoe UI',system-ui,sans-serif;
+        }
+
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            background: linear-gradient(135deg,var(--primary) 0%,#0D8A8A 50%,#0FA89E 100%);
+        }
+
+        .auth-left {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px;
+            color: #fff;
+        }
+
+            .auth-left h1 {
+                font-size: 2.4rem;
+                font-weight: 800;
+                line-height: 1.2;
+                margin-bottom: 16px;
             }
 
-            <form method="post" asp-action="Login" asp-controller="Account">
-                @Html.AntiForgeryToken()
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input name="Email" type="email" class="form-control" value="@Model?.Email" />
-                    <span class="field-error">@Html.ValidationMessage("Email")</span>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <input name="Password" type="password" class="form-control" placeholder="••••••••" autocomplete="current-password" />
-                    <span class="field-error">@Html.ValidationMessage("Password")</span>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:12px;">
-                    <i class="fas fa-sign-in-alt"></i> Sign In
-                </button>
-            </form>
+            .auth-left p {
+                font-size: 1rem;
+                opacity: .8;
+                max-width: 380px;
+                line-height: 1.6;
+            }
 
-            <p style="margin-top:22px; text-align:center; font-size:.85rem; color:var(--muted);">
-                Don't have an account?
-                <a asp-action="Register" asp-controller="Account" class="auth-link">Create one</a>
-            </p>
+        .auth-features {
+            margin-top: 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .auth-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: .9rem;
+            opacity: .85;
+        }
+
+            .auth-feature i {
+                width: 32px;
+                height: 32px;
+                border-radius: 8px;
+                background: rgba(255,255,255,.15);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+        .auth-right {
+            width: 480px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+        }
+
+        .auth-box {
+            width: 100%;
+        }
+
+        .auth-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 32px;
+        }
+
+            .auth-logo i {
+                font-size: 1.8rem;
+                color: var(--primary);
+            }
+
+            .auth-logo span {
+                font-size: 1.3rem;
+                font-weight: 800;
+                color: var(--primary);
+            }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .auth-sub {
+            font-size: .85rem;
+            color: var(--muted);
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: .82rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 13px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            font-size: .88rem;
+            outline: none;
+            transition: border-color .18s;
+        }
+
+            .form-control:focus {
+                border-color: var(--accent);
+                box-shadow: 0 0 0 3px rgba(0,196,180,.12);
+            }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 11px 18px;
+            border-radius: 8px;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+            transition: all .18s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+            .btn-primary:hover {
+                background: #0D8A8A;
+            }
+
+        .auth-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .auth-link:hover {
+                text-decoration: underline;
+            }
+
+        .alert {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: .84rem;
+            margin-bottom: 18px;
+            background: rgba(224,82,82,.08);
+            color: var(--danger);
+            border: 1px solid rgba(224,82,82,.18);
+        }
+
+        @@media(max-width:768px) {
+            .auth-left {
+                display: none;
+            }
+
+            .auth-right {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-left">
+            <h1>Your Health,<br />Our Priority</h1>
+            <p>Manage appointments, connect with doctors, and take control of your healthcare journey.</p>
+            <div class="auth-features">
+                <div class="auth-feature"><i class="fas fa-calendar-check"></i> Easy appointment booking</div>
+                <div class="auth-feature"><i class="fas fa-user-md"></i> Browse specialist doctors</div>
+                <div class="auth-feature"><i class="fas fa-shield-alt"></i> Secure & private</div>
+            </div>
+        </div>
+        <div class="auth-right">
+            <div class="auth-box">
+                <div class="auth-logo">
+                    <i class="fas fa-heartbeat"></i>
+                    <span>HealthCare</span>
+                </div>
+                <div class="auth-title">Welcome back</div>
+                <div class="auth-sub">Sign in to your account</div>
+
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert"><i class="fas fa-exclamation-circle"></i> @TempData["Error"]</div>
+                }
+
+                <form method="post" asp-action="Login" asp-controller="Account">
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input name="Email" type="email" class="form-control" placeholder="you@example.com" required />
+                    </div>
+                    <div class="form-group" style="margin-bottom:24px;">
+                        <label class="form-label">Password</label>
+                        <input name="Password" type="password" class="form-control" placeholder="••••••••" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Sign In
+                    </button>
+                </form>
+
+                <p style="text-align:center; margin-top:20px; font-size:.85rem; color:var(--muted);">
+                    Don't have an account? <a asp-action="Register" asp-controller="Account" class="auth-link">Create one</a>
+                </p>
+            </div>
         </div>
     </div>
-</div>
+</body>
+</html>

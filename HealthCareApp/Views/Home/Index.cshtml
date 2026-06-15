@@ -1,8 +1,57 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Dashboard";
+    var name = Context.Session.GetString("PatientName") ?? "Patient";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div style="margin-bottom:24px;">
+    <h2 style="font-weight:800; margin:0;">Welcome back, @name 👋</h2>
+    <p style="color:var(--muted); margin:4px 0 0;">Here's a quick overview of your health portal.</p>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:28px;">
+    <a href="/Doctor/Index" style="text-decoration:none;">
+        <div class="stat-card" style="border-left:4px solid var(--accent); cursor:pointer;">
+            <div class="stat-icon teal"><i class="fas fa-user-md"></i></div>
+            <div>
+                <div class="stat-val" style="font-size:1rem;">Find a Doctor</div>
+                <div class="stat-lbl">Browse specialists</div>
+            </div>
+        </div>
+    </a>
+    <a href="/Appointment/MyAppointments" style="text-decoration:none;">
+        <div class="stat-card" style="border-left:4px solid var(--primary); cursor:pointer;">
+            <div class="stat-icon blue"><i class="fas fa-calendar-check"></i></div>
+            <div>
+                <div class="stat-val" style="font-size:1rem;">My Appointments</div>
+                <div class="stat-lbl">View & manage</div>
+            </div>
+        </div>
+    </a>
+    <a href="/Appointment/Create" style="text-decoration:none;">
+        <div class="stat-card" style="border-left:4px solid var(--success); cursor:pointer;">
+            <div class="stat-icon green"><i class="fas fa-calendar-plus"></i></div>
+            <div>
+                <div class="stat-val" style="font-size:1rem;">Book Appointment</div>
+                <div class="stat-lbl">Schedule a visit</div>
+            </div>
+        </div>
+    </a>
+    <a href="/Account/Profile" style="text-decoration:none;">
+        <div class="stat-card" style="border-left:4px solid var(--warning); cursor:pointer;">
+            <div class="stat-icon orange"><i class="fas fa-user"></i></div>
+            <div>
+                <div class="stat-val" style="font-size:1rem;">My Profile</div>
+                <div class="stat-lbl">Update your info</div>
+            </div>
+        </div>
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-title"><i class="fas fa-info-circle"></i> Quick Tips</div>
+    <ul style="padding-left:20px; line-height:2; color:var(--muted); font-size:.88rem;">
+        <li>Go to <strong style="color:var(--text);">Find a Doctor</strong> to browse specialists and book an appointment.</li>
+        <li>You can <strong style="color:var(--text);">cancel or complete</strong> a scheduled appointment from My Appointments.</li>
+        <li>Keep your <strong style="color:var(--text);">phone and email</strong> up to date in your Profile.</li>
+    </ul>
 </div>

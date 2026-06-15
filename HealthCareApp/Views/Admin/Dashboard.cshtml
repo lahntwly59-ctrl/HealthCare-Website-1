@@ -1,57 +1,61 @@
-﻿@* @{
+﻿@{
     ViewData["Title"] = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2 class="mb-4">Administrative Dashboard</h2>
-
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white text-center p-3">
-                <h3>@ViewBag.PatientCount</h3>
-                <p>Total Patients</p>
-                <a asp-action="ManagePatients" class="text-white">Manage <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white text-center p-3">
-                <h3>@ViewBag.DoctorCount</h3>
-                <p>Total Doctors</p>
-                <a asp-action="ManageDoctors" class="text-white">Manage <i class="fas fa-arrow-right"></i></a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-info text-white text-center p-3">
-                <h3>@ViewBag.AppointmentCount</h3>
-                <p>Total Appointments</p>
-            </div>
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.TotalPatients</div>
+            <div class="stat-lbl">Total Patients</div>
         </div>
     </div>
-
-    <div class="card">
-        <div class="card-header">Recent Appointments</div>
-        <div class="card-body">
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Patient</th>
-                        <th>Doctor</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var app in ViewBag.RecentAppointments)
-                    {
-                        <tr>
-                            <td>@app.Patient.FullName</td>
-                            <td>@app.Doctor.FullName</td>
-                            <td>@app.Appointment_Date.ToShortDateString()</td>
-                            <td>@app.Status</td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    <div class="stat-card">
+        <div class="stat-icon teal"><i class="fas fa-user-md"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.TotalDoctors</div>
+            <div class="stat-lbl">Total Doctors</div>
         </div>
     </div>
-</div> *@
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="fas fa-hospital"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.TotalDepartments</div>
+            <div class="stat-lbl">Departments</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="fas fa-calendar-check"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.TotalAppointments</div>
+            <div class="stat-lbl">Total Appointments</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon teal"><i class="fas fa-clock"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.Scheduled</div>
+            <div class="stat-lbl">Scheduled</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red"><i class="fas fa-ban"></i></div>
+        <div>
+            <div class="stat-val">@ViewBag.Canceled</div>
+            <div class="stat-lbl">Canceled</div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-title"><i class="fas fa-bolt"></i> Quick Actions</div>
+    <div style="display:flex; flex-wrap:wrap; gap:12px; margin-top:8px;">
+        <a href="/Doctor/Create" class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Doctor</a>
+        <a href="/Admin/BookAppointment" class="btn btn-primary"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+        <a href="/Admin/Appointments" class="btn btn-outline"><i class="fas fa-calendar-alt"></i> All Appointments</a>
+        <a href="/Admin/Patients" class="btn btn-outline"><i class="fas fa-users"></i> All Patients</a>
+        <a href="/Doctor/Index" class="btn btn-outline"><i class="fas fa-user-md"></i> All Doctors</a>
+        <a href="/Admin/AddAdmin" class="btn btn-outline"><i class="fas fa-user-shield"></i> Add Admin</a>
+    </div>
+</div>

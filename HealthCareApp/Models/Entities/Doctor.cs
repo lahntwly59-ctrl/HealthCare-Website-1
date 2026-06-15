@@ -36,7 +36,6 @@ namespace HealthCareApp.Models.Entities
         [StringLength(30)]
         public string Email { get; set; } = string.Empty;
 
-        // Navigation Properties
         [ForeignKey("Department_ID")]
         [ValidateNever]
         public Department Department { get; set; } = null!;
@@ -44,7 +43,7 @@ namespace HealthCareApp.Models.Entities
         [ValidateNever]
         public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
 
-        // Computed full name
+       
         [NotMapped]
         public string FullName => $"Dr. {FirstName} {LastName}";
     }

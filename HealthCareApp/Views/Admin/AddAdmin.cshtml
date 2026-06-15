@@ -1,0 +1,56 @@
+﻿@{
+    ViewData["Title"] = "Add Admin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div style="max-width:480px; margin:0 auto;">
+    <div class="card">
+        <div class="card-title"><i class="fas fa-user-shield"></i> Add New Admin</div>
+        <p style="color:var(--muted); font-size:.85rem; margin-bottom:20px;">
+            This person will have full access to manage doctors, appointments, and patients.
+        </p>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> @TempData["Error"]</div>
+        }
+
+        <form method="post" asp-action="AddAdmin" asp-controller="Admin">
+            @Html.AntiForgeryToken()
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">First Name</label>
+                    <input name="FirstName" type="text" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Last Name</label>
+                    <input name="LastName" type="text" class="form-control" required />
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input name="Email" type="email" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input name="Phone" type="text" class="form-control" required />
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input name="Password" type="password" class="form-control" required />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm Password</label>
+                    <input name="ConfirmPassword" type="password" class="form-control" required />
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:8px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i> Add Admin
+                </button>
+                <a href="/Admin/Dashboard" class="btn btn-outline">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

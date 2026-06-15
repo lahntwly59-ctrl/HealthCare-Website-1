@@ -1,32 +1,22 @@
-﻿using HealthCareApp.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace HealthCareApp.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
+        [HttpGet]
         public IActionResult Index()
         {
-            return View();
-        }
+            // Must be logged in
+            if (HttpContext.Session.GetInt32("PatientId") == null)
+                return RedirectToAction("Login", "Account");
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+            // Admin goes to admin dashboard
+            if (HttpContext.Session.GetString("IsAdmin") == "true")
+                return RedirectToAction("Dashboard", "Admin");
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // Patient goes to their home page
+            return View();
         }
     }
 }

@@ -44,10 +44,10 @@ namespace HealthCareApp.Models.Entities
         [DataType(DataType.Password)]
         public string Password { get; set; }
 
-        // Navigation Property
+  
         public ICollection<Appointment> Appointments { get; set; }
 
-        // Computed full name
+    
         [NotMapped]
         public string FullName => $"{FirstName} {LastName}";
     }

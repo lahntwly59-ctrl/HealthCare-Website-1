@@ -1,200 +1,109 @@
-﻿//using HealthCareApp.Models.Entities;
-//using HealthCareApp.Data;
-//using HealthCareApp.Models;
-//using HealthCareApp.Models;
-//using Microsoft.AspNetCore.Http;
-//using Microsoft.AspNetCore.Mvc;
-//using System.Linq;
-
-//namespace HealthCareApp.Controllers
-//{
-//    public class AccountController : Controller
-//    {
-//        private readonly AppDbContext _context;
-
-//        public AccountController(AppDbContext context)
-//        {
-//            _context = context;
-//        }
-
-//        // GET: Account/Register
-//        public IActionResult Register()
-//        {
-//            return View();
-//        }
-
-//        // POST: Account/Register
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public IActionResult Register(Patient patient)
-//        {
-//            if (ModelState.IsValid)
-//            {
-//                if (_context.Patients.Any(p => p.Email == patient.Email))
-//                {
-//                    ModelState.AddModelError("Email", "Email already exists.");
-//                    return View(patient);
-//                }
-
-//                _context.Patients.Add(patient);
-//                _context.SaveChanges();
-//                return RedirectToAction("Login");
-//            }
-//            return View(patient);
-//        }
-
-//        // GET: Account/Login
-//        public IActionResult Login()
-//        {
-//            return View();
-//        }
-
-//        // POST: Account/Login
-//        [HttpPost]
-//        [ValidateAntiForgeryToken]
-//        public IActionResult Login(string email, string password)
-//        {
-//            var user = _context.Patients.FirstOrDefault(p => p.Email == email && p.Password == password);
-//            if (user != null)
-//            {
-//                HttpContext.Session.SetInt32("UserId", user.Patient_ID);
-//                HttpContext.Session.SetString("UserName", user.FullName);
-//                HttpContext.Session.SetString("UserRole", "Patient");
-//                return RedirectToAction("Index", "Home");
-//            }
-
-//            // Simple Admin check (for demo purposes)
-//            if (email == "admin@healthcare.com" && password == "admin123")
-//            {
-//                HttpContext.Session.SetInt32("UserId", 0);
-//                HttpContext.Session.SetString("UserName", "Administrator");
-//                HttpContext.Session.SetString("UserRole", "Admin");
-//                return RedirectToAction("Dashboard", "Admin");
-//            }
-
-//            ViewBag.Error = "Invalid login attempt.";
-//            return View();
-//        }
-
-//        // GET: Account/Logout
-//        public IActionResult Logout()
-//        {
-//            HttpContext.Session.Clear();
-//            return RedirectToAction("Login");
-//        }
-
-//        // GET: Account/Profile
-//        public IActionResult Profile()
-//        {
-//            int? userId = HttpContext.Session.GetInt32("UserId");
-//            if (userId == null || userId == 0) return RedirectToAction("Login");
-
-//            var patient = _context.Patients.Find(userId);
-//            return View(patient);
-//        }
-
-//        [HttpPost]
-//        public IActionResult Profile(Patient updatedPatient)
-//        {
-//            var patient = _context.Patients.Find(updatedPatient.Patient_ID);
-//            if (patient != null)
-//            {
-//                patient.FirstName = updatedPatient.FirstName;
-//                patient.LastName = updatedPatient.LastName;
-//                patient.Phone = updatedPatient.Phone;
-//                patient.Address = updatedPatient.Address;
-//                _context.SaveChanges();
-//                HttpContext.Session.SetString("UserName", patient.FullName);
-//                ViewBag.Message = "Profile updated successfully!";
-//            }
-//            return View(patient);
-//        }
-//    }
-//}
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using HealthCareApp.Data;
 using HealthCareApp.Models.Entities;
-using HealthCareApp.Models.ViewModels;
 
 namespace HealthCareApp.Controllers
 {
     public class AccountController : Controller
     {
         private readonly AppDbContext _context;
-        public AccountController(AppDbContext context) { _context = context; }
+
+        // Hard-coded original admin email
+        private const string MasterAdmin = "lahntwly59@gmail.com";
+
+        public AccountController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        private bool CheckIsAdmin(Patient p)
+            => p.Email == MasterAdmin || p.Address == "ADMIN";
 
         // GET: /Account/Login
+        [HttpGet]
         public IActionResult Login()
         {
             if (HttpContext.Session.GetInt32("PatientId") != null)
-                return RedirectToAction("Index", "Patient");
+                return RedirectToAction("Index", "Home");
             return View();
         }
 
         // POST: /Account/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public IActionResult Login(string Email, string Password)
         {
-            if (!ModelState.IsValid) return View(model);
-
-            var patient = await _context.Patients
-                .FirstOrDefaultAsync(p => p.Email == model.Email && p.Password == model.Password);
+            var patient = _context.Patients
+                .FirstOrDefault(p => p.Email == Email && p.Password == Password);
 
             if (patient == null)
             {
-                ModelState.AddModelError("", "Invalid email or password.");
-                return View(model);
+                TempData["Error"] = "Invalid email or password.";
+                return RedirectToAction("Login");
             }
 
             HttpContext.Session.SetInt32("PatientId", patient.Patient_ID);
             HttpContext.Session.SetString("PatientName", patient.FullName);
-            return RedirectToAction("Index", "Patient");
+            HttpContext.Session.SetString("IsAdmin", CheckIsAdmin(patient) ? "true" : "false");
+
+            return RedirectToAction("Index", "Home");
         }
 
-        // GET: /Account/Register
-        public IActionResult Register() => View();
+        // GET: /Account/Register  (patients only — admins are added by admin panel)
+        [HttpGet]
+        public IActionResult Register()
+        {
+            if (HttpContext.Session.GetInt32("PatientId") != null)
+                return RedirectToAction("Index", "Home");
+            return View();
+        }
 
         // POST: /Account/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public IActionResult Register(string FirstName, string LastName, string Email,
+                                       string Phone, string Gender, DateTime? Date_Of_Birth,
+                                       string? Address, string Password, string ConfirmPassword)
         {
-            if (!ModelState.IsValid) return View(model);
-
-            bool emailExists = await _context.Patients.AnyAsync(p => p.Email == model.Email);
-            if (emailExists)
+            if (Password != ConfirmPassword)
             {
-                ModelState.AddModelError("Email", "This email is already registered.");
-                return View(model);
+                TempData["Error"] = "Passwords do not match.";
+                return RedirectToAction("Register");
             }
 
-            bool phoneExists = await _context.Patients.AnyAsync(p => p.Phone == model.Phone);
-            if (phoneExists)
+            if (_context.Patients.Any(p => p.Email == Email))
             {
-                ModelState.AddModelError("Phone", "This phone number is already registered.");
-                return View(model);
+                TempData["Error"] = "This email is already registered.";
+                return RedirectToAction("Register");
+            }
+
+            if (_context.Patients.Any(p => p.Phone == Phone))
+            {
+                TempData["Error"] = "This phone number is already registered.";
+                return RedirectToAction("Register");
             }
 
             var patient = new Patient
             {
-                FirstName     = model.FirstName,
-                LastName      = model.LastName,
-                Email         = model.Email,
-                Password      = model.Password,
-                Phone         = model.Phone,
-                Address       = model.Address,
-                Date_Of_Birth = model.Date_Of_Birth,
-                Gender        = model.Gender
+                FirstName     = FirstName,
+                LastName      = LastName,
+                Email         = Email,
+                Password      = Password,
+                Phone         = Phone,
+                Gender        = Gender,
+                Date_Of_Birth = Date_Of_Birth,
+                Address       = Address
             };
 
             _context.Patients.Add(patient);
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
 
             HttpContext.Session.SetInt32("PatientId", patient.Patient_ID);
             HttpContext.Session.SetString("PatientName", patient.FullName);
-            return RedirectToAction("Index", "Patient");
+            HttpContext.Session.SetString("IsAdmin", "false");
+
+            return RedirectToAction("Index", "Home");
         }
 
         // POST: /Account/Logout
@@ -206,7 +115,19 @@ namespace HealthCareApp.Controllers
             return RedirectToAction("Login");
         }
 
+        // GET: /Account/Profile
+        [HttpGet]
+        public IActionResult Profile()
+        {
+            int? id = HttpContext.Session.GetInt32("PatientId");
+            if (id == null) return RedirectToAction("Login");
+            var patient = _context.Patients.FirstOrDefault(p => p.Patient_ID == id);
+            if (patient == null) return RedirectToAction("Login");
+            return View(patient);
+        }
+
         // GET: /Account/ChangePassword
+        [HttpGet]
         public IActionResult ChangePassword()
         {
             if (HttpContext.Session.GetInt32("PatientId") == null)
@@ -217,23 +138,33 @@ namespace HealthCareApp.Controllers
         // POST: /Account/ChangePassword
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        public IActionResult ChangePassword(string CurrentPassword,
+                                             string NewPassword,
+                                             string ConfirmNewPassword)
         {
-            if (!ModelState.IsValid) return View(model);
+            int? id = HttpContext.Session.GetInt32("PatientId");
+            if (id == null) return RedirectToAction("Login");
 
-            int patientId = HttpContext.Session.GetInt32("PatientId") ?? 0;
-            var patient = await _context.Patients.FindAsync(patientId);
+            var patient = _context.Patients.FirstOrDefault(p => p.Patient_ID == id);
+            if (patient == null) return RedirectToAction("Login");
 
-            if (patient == null || patient.Password != model.OldPassword)
+            if (patient.Password != CurrentPassword)
             {
-                ModelState.AddModelError("OldPassword", "Current password is incorrect.");
-                return View(model);
+                TempData["Error"] = "Current password is incorrect.";
+                return RedirectToAction("ChangePassword");
             }
 
-            patient.Password = model.NewPassword;
-            await _context.SaveChangesAsync();
+            if (NewPassword != ConfirmNewPassword)
+            {
+                TempData["Error"] = "New passwords do not match.";
+                return RedirectToAction("ChangePassword");
+            }
+
+            patient.Password = NewPassword;
+            _context.SaveChanges();
+
             TempData["Success"] = "Password changed successfully.";
-            return RedirectToAction("Profile", "Patient");
+            return RedirectToAction("Profile");
         }
     }
 }

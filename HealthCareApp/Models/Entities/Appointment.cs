@@ -7,7 +7,7 @@ namespace HealthCareApp.Models.Entities
     {
         [Key]
         public int Appointment_ID { get; set; }
-
+        
         [Required]
         public int Patient_ID { get; set; }
 

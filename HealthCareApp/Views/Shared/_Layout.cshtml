@@ -78,6 +78,7 @@
         .sidebar nav {
             flex: 1;
             padding: 16px 0;
+            overflow-y: auto;
         }
 
         .nav-section {
@@ -274,6 +275,11 @@
                 color: var(--success);
             }
 
+            .stat-icon.red {
+                background: rgba(224,82,82,.12);
+                color: var(--danger);
+            }
+
         .stat-val {
             font-size: 1.6rem;
             font-weight: 800;
@@ -380,6 +386,16 @@
                 opacity: .88;
             }
 
+        .btn-warning {
+            background: var(--warning);
+            color: #fff;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+        }
+
         .btn-outline {
             background: transparent;
             border: 1.5px solid var(--border);
@@ -394,11 +410,6 @@
         .btn-sm {
             padding: 6px 12px;
             font-size: .78rem;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: #fff;
         }
 
         /* ── Table ── */
@@ -506,7 +517,7 @@
         /* ── Doctor cards ── */
         .doctor-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(240px,1fr));
             gap: 18px;
         }
 
@@ -667,6 +678,25 @@
                 text-decoration: underline;
             }
 
+        /* ── Role badge ── */
+        .role-admin {
+            background: rgba(245,166,35,.12);
+            color: var(--warning);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: .73rem;
+            font-weight: 700;
+        }
+
+        .role-patient {
+            background: rgba(39,174,96,.12);
+            color: var(--success);
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: .73rem;
+            font-weight: 700;
+        }
+
         @@media (max-width: 768px) {
             .sidebar {
                 width: 60px;
@@ -697,62 +727,101 @@
 </head>
 <body>
     @{
-        // FIX: use Context.Session instead of HttpContext.Session in Razor views
-        var isLoggedIn = Context.Session.GetInt32("PatientId") != null;
-    }
-
-    @if (isLoggedIn)
-    {
+        var patientId = Context.Session.GetInt32("PatientId");
         var patientName = Context.Session.GetString("PatientName") ?? "User";
+        var isAdmin = Context.Session.GetString("IsAdmin") == "true";
         var nameParts = patientName.Split(' ');
         var initials = nameParts.Length >= 2
         ? $"{nameParts[0][0]}{nameParts[1][0]}"
         : patientName.Substring(0, 1);
-
         var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
         var action = ViewContext.RouteData.Values["action"]?.ToString();
+        string Nav(string c, string a) => ctrl == c && action == a ? "nav-link active" : "nav-link";
+        string NavC(string c) => ctrl == c ? "nav-link active" : "nav-link";
+    }
 
+    @if (patientId != null)
+    {
         <aside class="sidebar">
             <div class="sidebar-logo">
                 <i class="fas fa-heartbeat"></i>
                 <div>
                     <span>HealthCare</span>
-                    <small>Patient Portal</small>
+                    <small>@(isAdmin ? "Admin Panel" : "Patient Portal")</small>
                 </div>
             </div>
+
             <nav>
-                <div class="nav-section">Main</div>
-                <a class="nav-link @(ctrl == "Patient" && action == "Index" ? "active" : "")" href="/Patient/Index">
-                    <i class="fas fa-home"></i><span>Dashboard</span>
-                </a>
-                <a class="nav-link @(ctrl == "Patient" && action == "Profile" ? "active" : "")" href="/Patient/Profile">
-                    <i class="fas fa-user"></i><span>My Profile</span>
-                </a>
+                @if (!isAdmin)
+                {
+                    @* ══ PATIENT NAV ══ *@
+                    <div class="nav-section">Main</div>
+                    <a class="@Nav("Home", "Index")" href="/Home/Index">
+                        <i class="fas fa-home"></i><span>Dashboard</span>
+                    </a>
+                    <a class="@Nav("Account", "Profile")" href="/Account/Profile">
+                        <i class="fas fa-user"></i><span>My Profile</span>
+                    </a>
 
-                <div class="nav-section">Appointments</div>
-                <a class="nav-link @(ctrl == "Appointment" && action == "MyAppointments" ? "active" : "")" href="/Appointment/MyAppointments">
-                    <i class="fas fa-calendar-check"></i><span>My Appointments</span>
-                </a>
-                <a class="nav-link @(ctrl == "Appointment" && action == "Create" ? "active" : "")" href="/Appointment/Create">
-                    <i class="fas fa-plus-circle"></i><span>Book Appointment</span>
-                </a>
+                    <div class="nav-section">Appointments</div>
+                    <a class="@Nav("Appointment", "MyAppointments")" href="/Appointment/MyAppointments">
+                        <i class="fas fa-calendar-check"></i><span>My Appointments</span>
+                    </a>
+                    <a class="@Nav("Appointment", "Create")" href="/Appointment/Create">
+                        <i class="fas fa-plus-circle"></i><span>Book Appointment</span>
+                    </a>
 
-                <div class="nav-section">Directory</div>
-                <a class="nav-link @(ctrl == "Doctor" ? "active" : "")" href="/Doctor/Index">
-                    <i class="fas fa-user-md"></i><span>Doctors</span>
-                </a>
+                    <div class="nav-section">Directory</div>
+                    <a class="@NavC("Doctor")" href="/Doctor/Index">
+                        <i class="fas fa-user-md"></i><span>Doctors</span>
+                    </a>
 
-                <div class="nav-section">Account</div>
-                <a class="nav-link @(action == "ChangePassword" ? "active" : "")" href="/Account/ChangePassword">
-                    <i class="fas fa-lock"></i><span>Change Password</span>
-                </a>
+                    <div class="nav-section">Account</div>
+                    <a class="@Nav("Account", "ChangePassword")" href="/Account/ChangePassword">
+                        <i class="fas fa-lock"></i><span>Change Password</span>
+                    </a>
+                }
+                else
+                {
+                    @* ══ ADMIN NAV ══ *@
+                    <div class="nav-section">Main</div>
+                    <a class="@Nav("Admin", "Dashboard")" href="/Admin/Dashboard">
+                        <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
+                    </a>
+
+                    <div class="nav-section">Manage</div>
+                    <a class="@Nav("Admin", "Patients")" href="/Admin/Patients">
+                        <i class="fas fa-users"></i><span>Patients</span>
+                    </a>
+                    <a class="@NavC("Doctor")" href="/Doctor/Index">
+                        <i class="fas fa-user-md"></i><span>Doctors</span>
+                    </a>
+                    <a class="@Nav("Doctor", "Create")" href="/Doctor/Create">
+                        <i class="fas fa-user-plus"></i><span>Add Doctor</span>
+                    </a>
+                    <a class="@Nav("Admin", "Appointments")" href="/Admin/Appointments">
+                        <i class="fas fa-calendar-alt"></i><span>All Appointments</span>
+                    </a>
+                    <a class="@Nav("Admin", "BookAppointment")" href="/Admin/BookAppointment">
+                        <i class="fas fa-calendar-plus"></i><span>Book Appointment</span>
+                    </a>
+
+                    <div class="nav-section">Admin</div>
+                    <a class="@Nav("Admin", "AddAdmin")" href="/Admin/AddAdmin">
+                        <i class="fas fa-user-shield"></i><span>Add Admin</span>
+                    </a>
+                    <a class="@Nav("Account", "ChangePassword")" href="/Account/ChangePassword">
+                        <i class="fas fa-lock"></i><span>Change Password</span>
+                    </a>
+                }
             </nav>
+
             <div class="sidebar-footer">
                 <div class="user-chip">
                     <div class="user-avatar">@initials</div>
                     <div>
                         <div class="user-name">@patientName</div>
-                        <div class="user-role">Patient</div>
+                        <div class="user-role">@(isAdmin ? "Administrator" : "Patient")</div>
                     </div>
                 </div>
                 <form method="post" action="/Account/Logout">
@@ -767,14 +836,20 @@
         <div class="main">
             <div class="topbar">
                 <h1>@(ViewData["Title"] ?? "Dashboard")</h1>
-                <div>
-                    <span style="font-size:.82rem; color:var(--muted);">@DateTime.Now.ToString("ddd, MMM dd")</span>
-                </div>
+                <span style="font-size:.82rem; color:var(--muted);">@DateTime.Now.ToString("ddd, MMM dd")</span>
             </div>
             <div class="content">
                 @if (TempData["Success"] != null)
                 {
-                    <div class="alert alert-success"><i class="fas fa-check-circle"></i> @TempData["Success"]</div>
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i> @TempData["Success"]
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-triangle"></i> @TempData["Error"]
+                    </div>
                 }
                 @RenderBody()
             </div>
@@ -784,5 +859,7 @@
     {
         @RenderBody()
     }
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -16,7 +16,7 @@ namespace HealthCareApp.Models.Entities
         [StringLength(20)]
         public string Location { get; set; } = string.Empty;
 
-        // Navigation Property
+       
         public ICollection<Doctor> Doctors { get; set; } 
     }
 }
